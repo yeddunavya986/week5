@@ -1,0 +1,194 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "0gRAcUki7zO_",
+        "outputId": "cb670429-3b66-41ae-f799-6ead9bd4edae"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[?25l   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/143.7 kB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m143.7/143.7 kB\u001b[0m \u001b[31m4.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install groq transformers -q"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import userdata\n",
+        "from groq import Groq\n"
+      ],
+      "metadata": {
+        "id": "nS3IILTy8DvM"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "api_key = userdata.get(\"GROQ_API_KEY\")\n",
+        "client = Groq(api_key=api_key)\n"
+      ],
+      "metadata": {
+        "id": "Yd2ac7Xu8HKk"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# ---------------------------------------\n",
+        "# Zero-Shot Prompt\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "zero_shot_prompt = \"\"\"\n",
+        "Classify the sentiment of the following sentence as Positive, Negative, or Neutral.\n",
+        "\n",
+        "Sentence:\n",
+        "\"The movie was amazing and I really enjoyed it.\"\n",
+        "\"\"\"\n",
+        "\n",
+        "zero_response = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[\n",
+        "        {\"role\": \"user\", \"content\": zero_shot_prompt}\n",
+        "    ]\n",
+        ")\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Few-Shot Prompt\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "few_shot_prompt = \"\"\"\n",
+        "Classify the sentiment as Positive, Negative, or Neutral.\n",
+        "\n",
+        "Example 1\n",
+        "Sentence: I love this phone.\n",
+        "Answer: Positive\n",
+        "\n",
+        "Example 2\n",
+        "Sentence: The food was terrible.\n",
+        "Answer: Negative\n",
+        "\n",
+        "Example 3\n",
+        "Sentence: The meeting starts at 10 AM.\n",
+        "Answer: Neutral\n",
+        "\n",
+        "Now classify this sentence.\n",
+        "\n",
+        "Sentence: The movie was amazing and I really enjoyed it.\n",
+        "Answer:\n",
+        "\"\"\"\n",
+        "\n",
+        "few_response = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[\n",
+        "        {\"role\": \"user\", \"content\": few_shot_prompt}\n",
+        "    ]\n",
+        ")\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Display Results\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "print(\"========== Zero-Shot Prompt ==========\\n\")\n",
+        "print(zero_shot_prompt)\n",
+        "\n",
+        "print(\"\\nOutput:\\n\")\n",
+        "print(zero_response.choices[0].message.content)\n",
+        "\n",
+        "print(\"\\n\\n========== Few-Shot Prompt ==========\\n\")\n",
+        "print(few_shot_prompt)\n",
+        "\n",
+        "print(\"\\nOutput:\\n\")\n",
+        "print(few_response.choices[0].message.content)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4wAlcKZG8UNT",
+        "outputId": "19aea4ff-8dc1-4078-f92f-b30716539f9d"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "========== Zero-Shot Prompt ==========\n",
+            "\n",
+            "\n",
+            "Classify the sentiment of the following sentence as Positive, Negative, or Neutral.\n",
+            "\n",
+            "Sentence:\n",
+            "\"The movie was amazing and I really enjoyed it.\"\n",
+            "\n",
+            "\n",
+            "Output:\n",
+            "\n",
+            "The sentiment of the sentence is: Positive.\n",
+            "\n",
+            "The words \"amazing\" and \"really enjoyed\" indicate a strong positive emotion towards the movie, suggesting that the speaker had a very favorable experience.\n",
+            "\n",
+            "\n",
+            "========== Few-Shot Prompt ==========\n",
+            "\n",
+            "\n",
+            "Classify the sentiment as Positive, Negative, or Neutral.\n",
+            "\n",
+            "Example 1\n",
+            "Sentence: I love this phone.\n",
+            "Answer: Positive\n",
+            "\n",
+            "Example 2\n",
+            "Sentence: The food was terrible.\n",
+            "Answer: Negative\n",
+            "\n",
+            "Example 3\n",
+            "Sentence: The meeting starts at 10 AM.\n",
+            "Answer: Neutral\n",
+            "\n",
+            "Now classify this sentence.\n",
+            "\n",
+            "Sentence: The movie was amazing and I really enjoyed it.\n",
+            "Answer:\n",
+            "\n",
+            "\n",
+            "Output:\n",
+            "\n",
+            "Positive.\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
